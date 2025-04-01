@@ -36,10 +36,13 @@ class Base:
     def move(self):
         self.x1 -= self.velocity
         self.x2 -= self.velocity
-
+        
+        # as the left sizeof the image moves and gets negative, replace
+        # that segment to immediately follow the right side
         if self.x1 + self.width < 0:
             self.x1 = self.x2 + self.width
 
+        # same thing but for the right side as it leaves the screen
         if self.x2 + self.width < 0:
             self.x2 = self.x1 + self.width
 
@@ -87,17 +90,17 @@ class Pipe:
 #Bird Class
 class Bird:
     imgs = bird_images
-    max_rotation = 25
-    rot_velocity = 20
-    animation_time = 5
+    max_rotation = 25  # tilt when jumping
+    rot_velocity = 20  # rotate downwards
+    animation_time = 5 # time to switch images for flapping effect
 
     def __init__(self, x, y):
         self.x = x
         self.y = y
         self.tilt = 0
-        self.tick_count = 0
+        self.tick_count = 0 # a counter for tracking number of frames since last jump
         self.vel = 0
-        self.height = self.y
+        self.height = self.y # reference to last location for jump
         self.img_count = 0
         self.img = self.imgs[0]
     
@@ -108,7 +111,7 @@ class Bird:
 
     def move(self):
         self.tick_count += 1
-        d = self.vel * self.tick_count + 1.5 * self.tick_count ** 2 
+        d = self.vel * self.tick_count + 1.5 * self.tick_count ** 2 # Formula for displacement
         if d >= 16:
             d = 16
         
@@ -127,6 +130,8 @@ class Bird:
     def draw(self, window):
         self.img_count += 1
 
+        
+        # Cycles through the bird images for animation
         if self.img_count < self.animation_time:
             self.img = self.imgs[0]
         elif self.img_count < self.animation_time * 2:
@@ -157,6 +162,7 @@ class Bird:
 def draw_window(window, bird, pipes, base, score):
     window.blit(background_image, (0, 0))
 
+    # draw/render every pipe
     for pipe in pipes:
         pipe.draw(window)
     
@@ -181,6 +187,7 @@ def game_over(window):
 def main():
     pygame.display.set_caption("Flappy Bird by Komi")
     
+    # bird initiates at x, y coordinates
     bird = Bird(230,350)
     base= Base(730)
     pipes = [Pipe(700)]
@@ -190,6 +197,7 @@ def main():
     game_started = False
 
     while True:
+        # sets FPS
         clock.tick(30)
         base.move()
         for event in pygame.event.get():
@@ -216,6 +224,7 @@ def main():
                 if pipe.off_screen():
                     pipes.remove(pipe)
             
+            # create new pipe if it moves to pixel 700
             if pipes[-1].x < 400:
                 pipes.append(Pipe(730))
         
